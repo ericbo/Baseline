@@ -9,6 +9,8 @@
 
 class Sprite {
 public:
+    enum Animation {REPEAT, SINGLE};
+
     Sprite(
             const std::string &filename,
             int width,
@@ -24,7 +26,8 @@ public:
     );
 
     void draw(sf::RenderWindow &window, int x, int y);
-    void setAnimation(const std::vector<int> &squares);
+    void setAnimation(const std::vector<int> &squares, int speed = 50);
+    void setAnimation(const std::vector<int> &squares, const Animation &animation);
     void mirror();
     void restore();
 
@@ -41,8 +44,10 @@ private:
     const int limitWidth;
     const int limitHeight;
 
-    std::vector<int> animation;
-    int animationIndex;
+    std::vector<int> animationSequence;
+    int sequenceIndex;
+
+    Animation animation = Animation::REPEAT;
 
     sf::Texture texture;
     sf::Sprite sprite;
@@ -50,6 +55,7 @@ private:
     int tableHeight = 0;
 
     bool mirrored = false;
+    int animationSpeed = 100;
 
     int x = 0;
     int y = 0;

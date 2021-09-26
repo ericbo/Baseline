@@ -1,6 +1,9 @@
-project (baseline)
-
 cmake_minimum_required (VERSION 3.10)
+
+project (baseline VERSION 0.1)
+
+file(COPY src/Fonts DESTINATION ${CMAKE_BINARY_DIR})
+file(COPY src/Textures DESTINATION ${CMAKE_BINARY_DIR})
 
 add_executable(
     ${PROJECT_NAME}
@@ -9,7 +12,9 @@ add_executable(
     src/Domain/Player.cpp
     src/Domain/Delta.cpp
     src/Domain/Sprite.cpp
-        src/Domain/Text.cpp src/Domain/Text.h src/Domain/MultiTextBox.cpp src/Domain/MultiTextBox.h)
+    src/Domain/Text.cpp
+    src/Domain/MultiTextBox.cpp
+)
 
 target_link_libraries(
     ${PROJECT_NAME}

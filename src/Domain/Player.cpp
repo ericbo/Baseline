@@ -67,7 +67,11 @@ bool Player::isGrounded() {
     return grounded;
 }
 
-Player::direction Player::getDirection() {
+Player::state Player::getState() {
+    if (!grounded) {
+        return JUMPING;
+    }
+
     if (lastX == x) {
         return IDEL;
     }
@@ -79,11 +83,11 @@ Player::direction Player::getDirection() {
     return RIGHT;
 }
 
-Player::direction Player::getLastDirection() {
+Player::state Player::getLastState() {
     return lastDirection;
 }
 
-void Player::updateDirection() {
+void Player::updateState() {
     lastX = x;
     lastY = y;
 }

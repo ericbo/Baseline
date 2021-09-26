@@ -4,7 +4,7 @@
 
 class Player {
 public:
-    enum direction {IDEL, LEFT, RIGHT};
+    enum state {IDEL, LEFT, RIGHT, JUMPING};
 
 public:
     explicit Player(int minX, int minY, int maxX, int maxY);
@@ -16,9 +16,9 @@ public:
     void jump();
     void pullDown();
     bool isGrounded();
-    direction getDirection();
-    direction getLastDirection();
-    void updateDirection();
+    state getState();
+    state getLastState();
+    void updateState();
 
 private:
     static constexpr int MOVE_SPEED = 5;
@@ -33,7 +33,7 @@ private:
     int lastX = 0;
     int lastY = 0;
     int updateCount = 0;
-    direction lastDirection = direction::IDEL;
+    state lastDirection = state::IDEL;
     int acceleration = 0;
     bool grounded = false;
     std::mutex playerMutex;

@@ -1,5 +1,4 @@
 #include <Domain/Sprite.h>
-#include <iostream>
 
 Sprite::Sprite(
         const std::string &filename,
@@ -50,15 +49,19 @@ void Sprite::draw(sf::RenderWindow &window, int x, int y) {
     window.draw(sprite);
 }
 
-void Sprite::setAnimation(const std::vector<int> &squares) {
-    animation = squares;
-    animationIndex = 0;
+void Sprite::setAnimation(const std::vector<int> &squares, int speed) {
+    setAnimation(squares, Animation::REPEAT);
+    animationSpeed = speed;
+}
+
+void Sprite::setAnimation(const std::vector<int> &squares, const Sprite::Animation &animation) {
+    this->animation = animation;
+    animationSequence = squares;
+    sequenceIndex = 0;
 }
 
 void Sprite::mirror() {
     if (!mirrored) {
-
-        std::cout << "Mirror" << std::endl;
         sprite.scale(-1, 1);
         sprite.setOrigin(sf::Vector2f((float)limitWidth, (float) limitHeight));
         mirrored = true;
@@ -67,34 +70,37 @@ void Sprite::mirror() {
 
 void Sprite::restore() {
     if (mirrored) {
-        std::cout << "Restore" << std::endl;
-        sprite.scale(1, 1);
+        sprite.scale(-1, 1);
         sprite.setOrigin(sf::Vector2f(0, (float) limitHeight));
         mirrored = false;
     }
 }
 
 void Sprite::setNextTexture() {
-    if (animation.empty()) {
+    if (animationSequence.empty()) {
+        return;
+    }
+
+    if (animation == Animation::SINGLE && sequenceIndex == animationSequence.size() - 1) {
         return;
     }
 
     const auto &now = std::chrono::steady_clock::now();
     auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastAnimation).count();
 
-    if (elapsed < 150) {
+    if (elapsed < animationSpeed) {
         return;
     }
     lastAnimation = now;
 
-    int box = animation[animationIndex];
+    int box = animationSequence[sequenceIndex];
     int col = box % tableWidth;
     int row = box / tableHeight;
 
-    if (animationIndex < animation.size() - 1) {
-        animationIndex++;
+    if (sequenceIndex < animationSequence.size() - 1) {
+        sequenceIndex++;
     } else {
-        animationIndex = 0;
+        sequenceIndex = 0;
     }
 
     int x = (limitWidth + spacingRight) * col + marginLeft;
