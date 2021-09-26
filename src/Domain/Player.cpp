@@ -13,6 +13,7 @@ void Player::moveX(int direction) {
             return;
         }
 
+        lastX = x;
         x += delta;
 }
 
@@ -23,6 +24,7 @@ void Player::moveY(int direction) {
             return;
         }
 
+        lastY = y;
         y += delta;
 }
 
@@ -51,14 +53,37 @@ void Player::pullDown() {
 
     if (y + acceleration > maxY) {
         acceleration = 0;
+        lastY = y;
         y = maxY;
         grounded = true;
         return;
     }
 
+    lastY = y;
     y += acceleration++;
 }
 
 bool Player::isGrounded() {
     return grounded;
+}
+
+Player::direction Player::getDirection() {
+    if (lastX == x) {
+        return IDEL;
+    }
+
+    if (lastX > x) {
+        return LEFT;
+    }
+
+    return RIGHT;
+}
+
+Player::direction Player::getLastDirection() {
+    return lastDirection;
+}
+
+void Player::updateDirection() {
+    lastX = x;
+    lastY = y;
 }

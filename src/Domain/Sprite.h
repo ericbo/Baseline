@@ -25,6 +25,8 @@ public:
 
     void draw(sf::RenderWindow &window, int x, int y);
     void setAnimation(const std::vector<int> &squares);
+    void mirror();
+    void restore();
 
 private:
     const std::string filename;
@@ -46,6 +48,8 @@ private:
     sf::Sprite sprite;
     int tableWidth = 0;
     int tableHeight = 0;
+
+    bool mirrored = false;
 
     int x = 0;
     int y = 0;

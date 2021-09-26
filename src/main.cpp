@@ -32,30 +32,65 @@ int main(int argc, char *argv[]) {
             6,
             12,
             0,
-            15,
-            30,
+            2,
+            12,
             8,
-            34,
+            52,
             56
     );
 
     playerSprite.setAnimation({40, 41, 42, 43, 44, 45, 46, 47});
 
-    std::shared_ptr<Player> player = std::make_shared<Player>(0, 58, 640 - 34,  480);
+    std::shared_ptr<Player> player = std::make_shared<Player>(0, 56, 640 - 52,  480);
     sf::RenderWindow window(sf::VideoMode(640, 480), "Robot Game");
 
     std::atomic<bool> stopThread{false};
 
-    std::thread keyboardThread = std::thread([&stopThread, player](){
+    std::thread keyboardThread = std::thread([&stopThread, player, &playerSprite](){
+        Player::direction lastDirection = Player::LEFT;
         while (!stopThread.load()) {
             std::this_thread::yield();
             std::this_thread::sleep_for(std::chrono::milliseconds(20));
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+
+            player->updateDirection();
+
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
                 player->moveX(-1);
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+            }
+
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
                 player->moveX(1);
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+            }
+
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
                 player->jump();
+            }
+
+            switch (player->getDirection()) {
+                case Player::IDEL:
+                    if (lastDirection == Player::IDEL) {
+                        break;
+                    }
+                    playerSprite.setAnimation({8, 9, 10, 11, 12});
+                    playerSprite.restore();
+                    break;
+                case Player::LEFT:
+                    if (lastDirection == Player::LEFT) {
+                        break;
+                    }
+                    playerSprite.setAnimation({40, 41, 42, 43, 44, 45, 46, 47});
+                    playerSprite.restore();
+                    break;
+                case Player::RIGHT:
+                    if (lastDirection == Player::RIGHT) {
+                        break;
+                    }
+                    playerSprite.setAnimation({40, 41, 42, 43, 44, 45, 46, 47});
+                    playerSprite.mirror();
+                    break;
+            }
+
+            lastDirection = player->getDirection();
 
             player->pullDown();
         }
@@ -64,7 +99,8 @@ int main(int argc, char *argv[]) {
     std::stringstream ss;
     MultiTextBox debugConsole = MultiTextBox({
         {"position", Text(font, 20, sf::Color::White)},
-        {"jumpStatus", Text(font, 20, sf::Color::White)}
+        {"jumpStatus", Text(font, 20, sf::Color::White)},
+        {"direction", Text(font, 20, sf::Color::White)}
     });
 
     while (window.isOpen())
@@ -81,8 +117,27 @@ int main(int argc, char *argv[]) {
         debugConsole.update("position", ss.str());
 
         ss.str("");
-        ss << "Player Grounded: " << ((player->isGrounded()) ? "True " : "False");
+        ss << "Grounded: " << ((player->isGrounded()) ? "True " : "False");
         debugConsole.update("jumpStatus", ss.str());
+
+        ss.str("");
+        ss << "Direction :";
+
+        Player::direction playerDirection = player->getDirection();
+
+        switch(playerDirection) {
+            case Player::IDEL:
+                ss << " IDLE";
+                break;
+            case Player::LEFT:
+                ss << " LEFT";
+                break;
+            case Player::RIGHT:
+                ss << " RIGHT";
+                break;
+        }
+
+        debugConsole.update("direction", ss.str());
 
         window.clear();
         playerSprite.draw(window, player->getX(), player->getY());

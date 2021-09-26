@@ -55,6 +55,25 @@ void Sprite::setAnimation(const std::vector<int> &squares) {
     animationIndex = 0;
 }
 
+void Sprite::mirror() {
+    if (!mirrored) {
+
+        std::cout << "Mirror" << std::endl;
+        sprite.scale(-1, 1);
+        sprite.setOrigin(sf::Vector2f((float)limitWidth, (float) limitHeight));
+        mirrored = true;
+    }
+}
+
+void Sprite::restore() {
+    if (mirrored) {
+        std::cout << "Restore" << std::endl;
+        sprite.scale(1, 1);
+        sprite.setOrigin(sf::Vector2f(0, (float) limitHeight));
+        mirrored = false;
+    }
+}
+
 void Sprite::setNextTexture() {
     if (animation.empty()) {
         return;
@@ -63,7 +82,7 @@ void Sprite::setNextTexture() {
     const auto &now = std::chrono::steady_clock::now();
     auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastAnimation).count();
 
-    if (elapsed < 100) {
+    if (elapsed < 150) {
         return;
     }
     lastAnimation = now;
