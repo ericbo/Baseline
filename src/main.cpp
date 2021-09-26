@@ -17,6 +17,10 @@ int main(int argc, char *argv[]) {
     XInitThreads();
     const std::string &characterSheet = "Textures/minotaur.png";
     const std::string &fonts = "Fonts/Roboto-Thin.ttf";
+    const auto &appStartTime = std::chrono::steady_clock::now();
+    auto lastRenderTime = std::chrono::steady_clock::now();
+    auto fpsLastDisplayTime = std::chrono::steady_clock::now();
+    uint64_t totalFrames = 1;
 
     sf::Font font;
     if (!font.loadFromFile(fonts)) {
@@ -112,10 +116,15 @@ int main(int argc, char *argv[]) {
 
     std::stringstream ss;
     MultiTextBox debugConsole = MultiTextBox({
-        {"position", Text(font, 20, sf::Color::White)},
-        {"jumpStatus", Text(font, 20, sf::Color::White)},
-        {"state", Text(font, 20, sf::Color::White)}
+        {"title", Text(font, 20, sf::Color::White)},
+        {"position", Text(font, 18, sf::Color::White)},
+        {"jumpStatus", Text(font, 18, sf::Color::White)},
+        {"state", Text(font, 18, sf::Color::White)},
+        {"fps", Text(font, 18, sf::Color::White)}
     });
+    debugConsole.update("title", "Debug");
+
+    window.setFramerateLimit(60);
 
     while (window.isOpen())
     {
@@ -133,6 +142,15 @@ int main(int argc, char *argv[]) {
         ss.str("");
         ss << "Grounded : " << ((player->isGrounded()) ? "True " : "False");
         debugConsole.update("jumpStatus", ss.str());
+
+        auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(lastRenderTime - appStartTime).count();
+        auto lastDisplay = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - fpsLastDisplayTime).count();
+        if (elapsed > 0 && lastDisplay > 200) {
+            ss.str("");
+            ss << "FPS: " << totalFrames / elapsed;
+            debugConsole.update("fps", ss.str());
+            fpsLastDisplayTime = std::chrono::steady_clock::now();
+        }
 
         ss.str("");
         ss << "State :";
@@ -163,6 +181,8 @@ int main(int argc, char *argv[]) {
         playerSprite.draw(window, player->getX(), player->getY());
         debugConsole.draw(window, 640, 0);
         window.display();
+        lastRenderTime = std::chrono::steady_clock::now();
+        totalFrames++;
     }
 
     stopThread.store(true);
