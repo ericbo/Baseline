@@ -13,6 +13,9 @@
 #include <sstream>
 #include <Domain/Text.h>
 
+constexpr int WIDTH = 1280;
+constexpr int HEIGHT = 720;
+
 int main(int argc, char *argv[]) {
     XInitThreads();
     const std::string &characterSheet = "Textures/minotaur.png";
@@ -27,6 +30,9 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    int playerWidth = 76;
+    int playerHeight = 68;
+
     Sprite playerSprite(
             characterSheet,
             1024,
@@ -37,22 +43,39 @@ int main(int argc, char *argv[]) {
             14,
             20,
             28,
-            76,
-            68
+            playerWidth,
+            playerHeight
     );
 
-    std::shared_ptr<Player> player = std::make_shared<Player>(0, 56, 640 - 52,  480);
-    sf::RenderWindow window(sf::VideoMode(640, 480), "Robit");
+
+    std::shared_ptr<Player> player = std::make_shared<Player>(0, playerHeight, WIDTH - playerWidth,   HEIGHT);
+    sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Robit");
 
     std::atomic<bool> stopThread{false};
 
-    std::thread keyboardThread = std::thread([&stopThread, player, &playerSprite](){
+    MultiTextBox debugConsole = MultiTextBox({
+             {"title", Text(font, 20, sf::Color::White)},
+             {"position", Text(font, 18, sf::Color::White)},
+             {"jumpStatus", Text(font, 18, sf::Color::White)},
+             {"state", Text(font, 18, sf::Color::White)},
+             {"fps", Text(font, 18, sf::Color::White)}
+     });
+    debugConsole.update("title", "Debug");
+    debugConsole.hide();
+
+    auto lastKeyCheck = std::chrono::steady_clock::now();
+
+    std::thread keyboardThread = std::thread([&stopThread, player, &playerSprite, &debugConsole, &lastKeyCheck](){
         Player::state lastDirection = Player::LEFT;
         while (!stopThread.load()) {
             std::this_thread::yield();
             std::this_thread::sleep_for(std::chrono::milliseconds(20));
 
             player->updateState();
+
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
+                player->attack();
+            }
 
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) || sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
                 player->moveX(-1);
@@ -62,12 +85,19 @@ int main(int argc, char *argv[]) {
                 player->moveX(1);
             }
 
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
-                player->attack();
-            }
-
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) || sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
                 player->jump();
+            }
+
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::F1)) {
+                auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - lastKeyCheck).count();
+                if (elapsed > 200 && debugConsole.isHidden()) {
+                    debugConsole.show();
+                    lastKeyCheck = std::chrono::steady_clock::now();
+                } else if (elapsed > 200) {
+                    debugConsole.hide();
+                    lastKeyCheck = std::chrono::steady_clock::now();
+                }
             }
 
             switch (player->getState()) {
@@ -115,14 +145,6 @@ int main(int argc, char *argv[]) {
     });
 
     std::stringstream ss;
-    MultiTextBox debugConsole = MultiTextBox({
-        {"title", Text(font, 20, sf::Color::White)},
-        {"position", Text(font, 18, sf::Color::White)},
-        {"jumpStatus", Text(font, 18, sf::Color::White)},
-        {"state", Text(font, 18, sf::Color::White)},
-        {"fps", Text(font, 18, sf::Color::White)}
-    });
-    debugConsole.update("title", "Debug");
 
     window.setFramerateLimit(60);
 
@@ -179,7 +201,7 @@ int main(int argc, char *argv[]) {
 
         window.clear();
         playerSprite.draw(window, player->getX(), player->getY());
-        debugConsole.draw(window, 640, 0);
+        debugConsole.draw(window, WIDTH, 0);
         window.display();
         lastRenderTime = std::chrono::steady_clock::now();
         totalFrames++;

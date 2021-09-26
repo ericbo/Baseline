@@ -6,7 +6,7 @@ Player::Player(int minX, int minY, int maxX, int maxY): minX(minX), minY(minY), 
 }
 
 void Player::moveX(int direction) {
-        if (attacking) {
+        if (attacking && grounded) {
             return;
         }
         std::lock_guard<std::mutex> lock(playerMutex);

@@ -12,11 +12,35 @@ void MultiTextBox::update(const std::string &name, const std::string &content) {
 }
 
 void MultiTextBox::draw(sf::RenderWindow &window, int x, int y) {
+    if (hidden) {
+        return;
+    }
+
     for (auto &text : map) {
         const auto &size = text.second.getSize();
         text.second.draw(window, x, y);
         y += size.second + 5;
     }
+}
+
+void MultiTextBox::hide() {
+    if (hidden) {
+        return;
+    }
+
+    hidden = true;
+}
+
+void MultiTextBox::show() {
+    if (!hidden) {
+        return;
+    }
+
+    hidden = false;
+}
+
+bool MultiTextBox::isHidden() {
+    return hidden;
 }
 
 int MultiTextBox::find(const std::string &name) {
