@@ -32,16 +32,16 @@ int main(int argc, char *argv[]) {
             6,
             12,
             0,
-            14,
+            15,
             30,
             8,
             34,
-            58
+            56
     );
 
-    playerSprite.setAnimation({0, 1, 2, 3, 4, 5, 4, 3, 2, 1});
+    playerSprite.setAnimation({40, 41, 42, 43, 44, 45, 46, 47});
 
-    std::shared_ptr<Player> player = std::make_shared<Player>(0, 58, 640 - 33,  480);
+    std::shared_ptr<Player> player = std::make_shared<Player>(0, 58, 640 - 34,  480);
     sf::RenderWindow window(sf::VideoMode(640, 480), "Robot Game");
 
     std::atomic<bool> stopThread{false};
