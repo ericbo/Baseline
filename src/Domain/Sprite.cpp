@@ -54,10 +54,21 @@ void Sprite::setAnimation(const std::vector<int> &squares, int speed) {
     animationSpeed = speed;
 }
 
-void Sprite::setAnimation(const std::vector<int> &squares, const Sprite::Animation &animation) {
+void Sprite::setAnimation(const std::vector<int> &squares, const Sprite::Animation &animation, int speed) {
     this->animation = animation;
     animationSequence = squares;
     sequenceIndex = 0;
+    animationSpeed = speed;
+}
+
+bool Sprite::isAnimationDone() {
+    if (animationDone) {
+        return true;
+    }
+
+    if (sequenceIndex >= animationSequence.size() -1) {
+        animationDone = true;
+    }
 }
 
 void Sprite::mirror() {
@@ -82,8 +93,11 @@ void Sprite::setNextTexture() {
     }
 
     if (animation == Animation::SINGLE && sequenceIndex == animationSequence.size() - 1) {
+        animationDone = true;
         return;
     }
+
+    animationDone = false;
 
     const auto &now = std::chrono::steady_clock::now();
     auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastAnimation).count();

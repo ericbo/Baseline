@@ -6,6 +6,9 @@ Player::Player(int minX, int minY, int maxX, int maxY): minX(minX), minY(minY), 
 }
 
 void Player::moveX(int direction) {
+        if (attacking) {
+            return;
+        }
         std::lock_guard<std::mutex> lock(playerMutex);
         int delta = MOVE_SPEED * direction;
 
@@ -39,11 +42,28 @@ int Player::getY() {
 }
 
 void Player::jump() {
+    if (attacking) {
+        return;
+    }
+
+    if (!grounded && !secondJump && acceleration >= 0) {
+        acceleration = -15;
+        secondJump = true;
+    }
+
     if (!grounded) {
         return;
     }
     grounded = false;
     acceleration = -15;
+}
+
+void Player::attack() {
+    attacking = true;
+}
+
+void Player::idle() {
+    attacking = false;
 }
 
 void Player::pullDown() {
@@ -56,6 +76,7 @@ void Player::pullDown() {
         lastY = y;
         y = maxY;
         grounded = true;
+        secondJump = false;
         return;
     }
 
@@ -68,6 +89,10 @@ bool Player::isGrounded() {
 }
 
 Player::state Player::getState() {
+    if (attacking) {
+        return ATTACK;
+    }
+
     if (!grounded) {
         return JUMPING;
     }

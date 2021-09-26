@@ -4,7 +4,7 @@
 
 class Player {
 public:
-    enum state {IDEL, LEFT, RIGHT, JUMPING};
+    enum state {IDEL, LEFT, RIGHT, JUMPING, ATTACK};
 
 public:
     explicit Player(int minX, int minY, int maxX, int maxY);
@@ -14,6 +14,8 @@ public:
     int getX();
     int getY();
     void jump();
+    void attack();
+    void idle();
     void pullDown();
     bool isGrounded();
     state getState();
@@ -36,5 +38,7 @@ private:
     state lastDirection = state::IDEL;
     int acceleration = 0;
     bool grounded = false;
+    bool secondJump = false;
+    bool attacking = false;
     std::mutex playerMutex;
 };

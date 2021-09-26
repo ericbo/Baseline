@@ -27,7 +27,8 @@ public:
 
     void draw(sf::RenderWindow &window, int x, int y);
     void setAnimation(const std::vector<int> &squares, int speed = 50);
-    void setAnimation(const std::vector<int> &squares, const Animation &animation);
+    void setAnimation(const std::vector<int> &squares, const Animation &animation, int speed = 50);
+    bool isAnimationDone();
     void mirror();
     void restore();
 
@@ -55,6 +56,7 @@ private:
     int tableHeight = 0;
 
     bool mirrored = false;
+    bool animationDone = true;
     int animationSpeed = 100;
 
     int x = 0;

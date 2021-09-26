@@ -15,7 +15,7 @@
 
 int main(int argc, char *argv[]) {
     XInitThreads();
-    const std::string &file = "Textures/spritesheet.png";
+    const std::string &characterSheet = "Textures/minotaur.png";
     const std::string &fonts = "Fonts/Roboto-Thin.ttf";
 
     sf::Font font;
@@ -24,20 +24,18 @@ int main(int argc, char *argv[]) {
     }
 
     Sprite playerSprite(
-            file,
-            512,
-            512,
-            6,
-            12,
+            characterSheet,
+            1024,
+            1920,
             0,
-            2,
-            12,
-            8,
-            52,
-            56
+            30,
+            0,
+            14,
+            20,
+            28,
+            76,
+            68
     );
-
-    playerSprite.setAnimation({40, 41, 42, 43, 44, 45, 46, 47});
 
     std::shared_ptr<Player> player = std::make_shared<Player>(0, 56, 640 - 52,  480);
     sf::RenderWindow window(sf::VideoMode(640, 480), "Robit");
@@ -52,15 +50,19 @@ int main(int argc, char *argv[]) {
 
             player->updateState();
 
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) || sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
                 player->moveX(-1);
             }
 
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) || sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
                 player->moveX(1);
             }
 
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
+                player->attack();
+            }
+
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) || sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
                 player->jump();
             }
 
@@ -69,27 +71,36 @@ int main(int argc, char *argv[]) {
                     if (lastDirection == Player::IDEL) {
                         break;
                     }
-                    playerSprite.setAnimation({8, 9, 10, 11, 12}, 200);
+                    playerSprite.setAnimation({0, 1, 2, 3, 4}, 200);
                     break;
                 case Player::LEFT:
                     if (lastDirection == Player::LEFT) {
                         break;
                     }
-                    playerSprite.setAnimation({40, 41, 42, 43, 44, 45, 46, 47});
-                    playerSprite.restore();
+                    playerSprite.setAnimation({21, 22, 23, 24 , 25});
+                    playerSprite.mirror();
                     break;
                 case Player::RIGHT:
                     if (lastDirection == Player::RIGHT) {
                         break;
                     }
-                    playerSprite.setAnimation({40, 41, 42, 43, 44, 45, 46, 47});
-                    playerSprite.mirror();
+                    playerSprite.setAnimation({21, 22, 23, 24 , 25});
+                    playerSprite.restore();
                     break;
                 case Player::JUMPING:
                     if (lastDirection == Player::JUMPING) {
                         break;
                     }
                     playerSprite.setAnimation({32, 33, 34, 35}, Sprite::Animation::SINGLE);
+                    break;
+                case Player::ATTACK:
+                    if (playerSprite.isAnimationDone()) {
+                        player->idle();
+                    }
+                    if (lastDirection == Player::ATTACK) {
+                        break;
+                    }
+                    playerSprite.setAnimation({60, 61, 62, 63, 64, 64, 67, 68}, Sprite::Animation::SINGLE);
                     break;
             }
 
@@ -140,6 +151,9 @@ int main(int argc, char *argv[]) {
                 break;
             case Player::JUMPING:
                 ss << " JUMP";
+                break;
+            case Player::ATTACK:
+                ss << " ATCK";
                 break;
         }
 
