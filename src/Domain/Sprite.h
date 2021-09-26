@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <chrono>
 
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
@@ -48,6 +49,7 @@ private:
 
     int x = 0;
     int y = 0;
+    std::chrono::steady_clock::time_point lastAnimation = std::chrono::steady_clock::now();
 
     void setNextTexture();
 };

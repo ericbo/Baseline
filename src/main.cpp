@@ -76,8 +76,6 @@ int main(int argc, char *argv[]) {
                 window.close();
         }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
         ss.str("");
         ss << "(" << player->getX() << ", " << player->getY() << ")";
         debugConsole.update("position", ss.str());

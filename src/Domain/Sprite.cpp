@@ -60,6 +60,14 @@ void Sprite::setNextTexture() {
         return;
     }
 
+    const auto &now = std::chrono::steady_clock::now();
+    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastAnimation).count();
+
+    if (elapsed < 100) {
+        return;
+    }
+    lastAnimation = now;
+
     int box = animation[animationIndex];
     int col = box % tableWidth;
     int row = box / tableHeight;
